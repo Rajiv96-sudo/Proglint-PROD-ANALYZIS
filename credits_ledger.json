@@ -1,0 +1,77 @@
+{
+  "rahul@proglint.com": {
+    "employee_name": "Rahul Sharma",
+    "total_credits": 3.5,
+    "weekend_hours_logged": 21.0,
+    "events": [
+      {
+        "date": "2026-11-21",
+        "day_name": "Saturday",
+        "hours": 7.0,
+        "credits_awarded": 1.0,
+        "activity_type": "Emergency Incident Triage",
+        "details": "Resolved payment gateway deadlock",
+        "certificate_id": "CERT-2026-441394"
+      },
+      {
+        "date": "2026-11-15",
+        "day_name": "Saturday",
+        "hours": 8.0,
+        "credits_awarded": 1.0,
+        "activity_type": "Azure DevOps Commits & Hotfix",
+        "details": "Pushed 3 critical commits resolving prod database timeout",
+        "certificate_id": "CERT-2026-RHL-01"
+      },
+      {
+        "date": "2026-11-14",
+        "day_name": "Sunday",
+        "hours": 6.0,
+        "credits_awarded": 1.0,
+        "activity_type": "Emergency Incident Triage",
+        "details": "Attended 2 weekend syncs and deployed auth patch",
+        "certificate_id": "CERT-2026-RHL-02"
+      }
+    ]
+  },
+  "priya@proglint.com": {
+    "employee_name": "Priya Patel",
+    "total_credits": 2.0,
+    "weekend_hours_logged": 12.5,
+    "events": [
+      {
+        "date": "2026-11-21",
+        "day_name": "Saturday",
+        "hours": 6.0,
+        "credits_awarded": 1.0,
+        "activity_type": "Scheduled Production Maintenance & Deployment",
+        "details": "deploment",
+        "certificate_id": "CERT-2026-CA6A48"
+      },
+      {
+        "date": "2026-11-15",
+        "day_name": "Saturday",
+        "hours": 6.5,
+        "credits_awarded": 1.0,
+        "activity_type": "Feature Deployment & PR Merge",
+        "details": "Merged Redis caching pipeline during scheduled maintenance",
+        "certificate_id": "CERT-2026-PRY-01"
+      }
+    ]
+  },
+  "amit@proglint.com": {
+    "employee_name": "Amit Verma",
+    "total_credits": 1.5,
+    "weekend_hours_logged": 9.0,
+    "events": [
+      {
+        "date": "2026-11-14",
+        "day_name": "Sunday",
+        "hours": 5.0,
+        "credits_awarded": 1.0,
+        "activity_type": "Architecture Review & Standby",
+        "details": "Reviewed cloud infrastructure migration plan",
+        "certificate_id": "CERT-2026-AMT-01"
+      }
+    ]
+  }
+}

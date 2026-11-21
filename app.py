@@ -11,10 +11,12 @@ import streamlit as st
 from config.settings import get_settings
 import synthetic_data
 import agent.analyst_agent
+import credit_engine
 
 # Ensure submodules are fresh on every Streamlit rerun
 importlib.reload(synthetic_data)
 importlib.reload(agent.analyst_agent)
+importlib.reload(credit_engine)
 
 from synthetic_data import (
     PERSONAS,
@@ -29,8 +31,15 @@ from agent.analyst_agent import (
     get_full_employee_productivity_snapshot,
     evaluate_task_assignment,
     audit_pending_tasks_and_deadlines,
+    generate_weekend_recognition_content,
     run_productivity_agent,
     create_productivity_chat,
+)
+from credit_engine import (
+    load_ledger,
+    award_employee_credit,
+    calculate_period_summary,
+    generate_simple_certificate_html,
 )
 
 
@@ -138,9 +147,10 @@ st.progress(meeting_pct, text=f"Meeting Load: {meeting_pct}% of standard work we
 st.divider()
 
 # --- MAIN TABS ---
-tab_tasks, tab_report, tab_chat, tab_data = st.tabs([
+tab_tasks, tab_report, tab_credits, tab_chat, tab_data = st.tabs([
     "📝 Assign Task & Agent Impact Analysis",
     "📊 Executive AI Productivity Report",
+    "🌟 Weekend Credits & Recognition",
     "💬 Interactive Agent Chat",
     "📋 Raw Data (Calendar & Commits)",
 ])
@@ -300,7 +310,128 @@ with tab_report:
         st.markdown(report)
 
 # ============================================================================
-# TAB 3: CONVERSATIONAL AGENT CHAT
+# TAB 3: WEEKEND CREDITS & RECOGNITION
+# ============================================================================
+with tab_credits:
+    st.subheader(f"🌟 Weekend & Overtime Credit System — {employee_email}")
+    st.caption("Tracks Saturday & Sunday work, calculates Weekly & Monthly credits, generates clean Certificates, and alerts Management.")
+
+    # 1. Calculation Period Selector (Weekly vs. Monthly)
+    cadence = st.radio(
+        "Select Calculation & Certificate Cadence:",
+        options=["📅 Weekly Overtime Calculation", "🗓️ Monthly Overtime Calculation"],
+        horizontal=True,
+    )
+    period_type = "Weekly" if "Weekly" in cadence else "Monthly"
+
+    # Calculate metrics for the selected period
+    summary = calculate_period_summary(employee_email, period_type)
+    ledger = load_ledger()
+    emp_record = ledger.get(employee_email.lower().strip(), {
+        "employee_name": employee_email.split("@")[0].capitalize(),
+        "total_credits": 0.0,
+        "events": [],
+    })
+
+    # Top KPI Metrics Row
+    col_c1, col_c2, col_c3 = st.columns(3)
+    col_c1.metric(f"⏳ {period_type} Weekend Hours", f"{summary['total_hours']} hrs", f"During {summary['period_label']}")
+    col_c2.metric(f"🌟 {period_type} Credits Earned", f"+{summary['total_credits']} Credits", "Eligible for Comp-Off")
+    col_c3.metric("🏆 Lifetime Total Credits", f"{emp_record['total_credits']} Credits", "All-time Balance")
+
+    st.divider()
+
+    # 2. Simple, Elegant Certificate Studio
+    st.subheader(f"📜 {period_type} Certificate of Appreciation")
+    st.caption("Clean, official certificate without cluttered text — ready to print or download.")
+
+    cert_id = f"CERT-{date.today().strftime('%Y')}-{period_type[:1]}-{employee_email.split('@')[0][:3].upper()}"
+    simple_cert_html = generate_simple_certificate_html(
+        employee_name=summary["employee_name"],
+        period_type=period_type,
+        period_label=summary["period_label"],
+        total_hours=summary["total_hours"],
+        credits_earned=summary["total_credits"],
+        certificate_id=cert_id,
+    )
+
+    # Render simple certificate
+    st.components.v1.html(simple_cert_html, height=430, scrolling=False)
+
+    col_btn_dl, col_btn_mail = st.columns([2, 3])
+    with col_btn_dl:
+        st.download_button(
+            label=f"📥 Download {period_type} Certificate (HTML)",
+            data=simple_cert_html,
+            file_name=f"Certificate_{employee_email.split('@')[0]}_{period_type}_{date.today()}.html",
+            mime="text/html",
+            type="primary",
+        )
+
+    st.divider()
+
+    # 3. Automated Manager Alert Email
+    st.subheader(f"📧 Automated Manager Notification Email ({period_type} Summary)")
+    mgr_subject = f"[Employee Credit Notification] {summary['employee_name']} logged {summary['total_hours']}h weekend work ({summary['period_label']})"
+    mgr_body = (
+        f"Hi Engineering Management,\n\n"
+        f"This is an automated notification from the Productivity Agent.\n"
+        f"Employee: {summary['employee_name']} ({employee_email})\n"
+        f"Cadence: {period_type} Overtime Audit ({summary['period_label']})\n\n"
+        f"• Weekend Hours Logged: {summary['total_hours']} hours\n"
+        f"• Compensatory Credits Awarded: +{summary['total_credits']} Credit(s)\n"
+        f"• Total Available Credit Balance: {emp_record['total_credits']} Credit(s)\n\n"
+        f"Recommendation: Please authorize compensatory time off (comp-off) to recognize their weekend contribution and support team well-being.\n\n"
+        f"Best regards,\nProglint Productivity Agent"
+    )
+
+    with st.container():
+        st.markdown(f"**To:** `manager@proglint.com` | **CC:** `{employee_email}`")
+        st.markdown(f"**Subject:** `{mgr_subject}`")
+        st.text_area("Email Message Body:", value=mgr_body, height=140)
+        if st.button("📨 Send Alert Email to Manager (Simulate via Outlook)"):
+            st.success("✅ Notification email successfully queued to Manager via Microsoft Graph API!")
+
+    st.divider()
+
+    # 4. Form to Log Additional Weekend Activity
+    with st.expander("➕ **Log New Weekend / Overtime Activity**", expanded=False):
+        with st.form("weekend_form_simple"):
+            col_f1, col_f2 = st.columns(2)
+            with col_f1:
+                ov_day = st.selectbox("Day", ["Saturday", "Sunday", "Late-Night Maintenance (> 8 PM)"])
+                ov_hours = st.number_input("Hours Worked", min_value=1.0, max_value=16.0, value=6.0, step=0.5)
+            with col_f2:
+                ov_type = st.selectbox("Activity Type", [
+                    "Production Hotfix",
+                    "Deployment & Maintenance",
+                    "Critical Architecture Spike",
+                    "Customer Incident Standby",
+                ])
+                ov_details = st.text_input("Details", placeholder="e.g. Fixed DB deadlock and deployed patch")
+
+            if st.form_submit_button("Log Activity & Update Credits", type="primary"):
+                if ov_details:
+                    award_employee_credit(
+                        employee_email=employee_email,
+                        employee_name=summary["employee_name"],
+                        day_name=ov_day,
+                        hours=float(ov_hours),
+                        activity_type=ov_type,
+                        details=ov_details,
+                    )
+                    st.success(f"✅ Activity logged! Credits updated for {employee_email}.")
+                    st.rerun()
+
+    # 5. Weekend Work History Table
+    st.subheader(f"📋 Weekend Work Log for {employee_email}")
+    if summary["events"]:
+        display_df(summary["events"])
+    else:
+        st.write(f"No weekend work recorded for **{employee_email}** in {summary['period_label']}.")
+
+# ============================================================================
+# TAB 4: CONVERSATIONAL AGENT CHAT
 # ============================================================================
 with tab_chat:
     st.subheader("💬 Chat Directly with the Productivity Analyst Agent")

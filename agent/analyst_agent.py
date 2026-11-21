@@ -134,6 +134,64 @@ def audit_pending_tasks_and_deadlines(employee_email: str) -> str:
     return _call_gemini(prompt, snapshot)
 
 
+def generate_weekend_recognition_content(employee_name: str, employee_email: str, weekend_details: str, hours: float, credits_awarded: float) -> Dict[str, str]:
+    """
+    Uses Gemini to generate:
+    1. A formal Manager Alert Email.
+    2. An inspiring, official Certificate Citation.
+    """
+    prompt = (
+        f"You are the Employee Recognition & Well-being Agent.\n"
+        f"An employee has worked during non-working days / weekend:\n"
+        f"• Employee Name: {employee_name} ({employee_email})\n"
+        f"• Hours Logged: {hours} hours\n"
+        f"• Credits Awarded: +{credits_awarded} Employee Credits\n"
+        f"• Activity Summary: {weekend_details}\n\n"
+        f"Please output a valid JSON object with the following exact keys:\n"
+        f'{{\n'
+        f'  "manager_email_subject": "...",\n'
+        f'  "manager_email_body": "...",\n'
+        f'  "certificate_citation": "..."\n'
+        f'}}\n\n'
+        f"Guidelines:\n"
+        f"- manager_email_subject: Short and professional alert with employee name and hours.\n"
+        f"- manager_email_body: Comprehensive email notifying manager of weekend work, details, credit awarded, and advising compensatory time off.\n"
+        f"- certificate_citation: Inspiring, formal 2-sentence award citation praising their commitment, dedication, and impact during critical non-working hours.\n"
+        f"Return ONLY the raw JSON object, without backticks."
+    )
+
+    raw_response = _call_gemini(prompt, {"employee": employee_email, "hours": hours})
+    
+    # Try parsing JSON, or provide clean fallback
+    try:
+        clean = raw_response.strip()
+        if clean.startswith("```json"):
+            clean = clean[7:]
+        if clean.startswith("```"):
+            clean = clean[3:]
+        if clean.endswith("```"):
+            clean = clean[:-3]
+        parsed = json.loads(clean.strip())
+        return parsed
+    except Exception:
+        return {
+            "manager_email_subject": f"[Employee Credit Alert] {employee_name} contributed {hours}h during non-working hours",
+            "manager_email_body": (
+                f"Hi Engineering Leadership,\n\n"
+                f"This is an automated notification from the Productivity Agent. {employee_name} ({employee_email}) "
+                f"logged {hours} hours of dedicated engineering activity during non-working days (weekend).\n\n"
+                f"• Contribution: {weekend_details}\n"
+                f"• Employee Credits Awarded: +{credits_awarded} Credit(s)\n\n"
+                f"Recommendation: Please authorize compensatory time off (comp-off) to recognize their dedication and ensure healthy work-life balance.\n\n"
+                f"Best regards,\nProglint Productivity Agent"
+            ),
+            "certificate_citation": (
+                f"In distinguished recognition of exceptional dedication and critical engineering support delivered during non-working hours. "
+                f"Your commitment to product stability and selfless teamwork exemplifies the highest standards of engineering excellence."
+            ),
+        }
+
+
 def evaluate_task_assignment(task: Dict[str, Any], assignees: Any) -> str:
     """
     Called automatically when a new task is assigned in the UI.

@@ -1,0 +1,61 @@
+[
+  {
+    "id": "TASK-105",
+    "title": "Deploy Distributed Cache Cluster",
+    "assignee": "rahul@proglint.com, priya@proglint.com",
+    "assignees": [
+      "rahul@proglint.com",
+      "priya@proglint.com"
+    ],
+    "priority": "High",
+    "status": "Assigned",
+    "estimated_hours": 14,
+    "created_date": "2026-11-21",
+    "due_date": "2026-11-26",
+    "agent_feasibility": "### Employee Productivity & Workload Analysis Report\n\n---\n\n#### 1. \ud83d\udcc5 Meeting Load & Focus Time (Outlook)\n* **Rahul (rahul@proglint.com):** Heavy meeting load of **24.5 hours**, lea..."
+  },
+  {
+    "id": "TASK-101",
+    "title": "Migrate Payment Webhook to Azure Service Bus",
+    "assignee": "rahul@proglint.com",
+    "priority": "High",
+    "status": "In Progress",
+    "estimated_hours": 12,
+    "created_date": "2026-11-18",
+    "due_date": "2026-11-23",
+    "agent_feasibility": "At Risk - Rahul has only 15.5h focus time remaining due to 24.5h meetings."
+  },
+  {
+    "id": "TASK-102",
+    "title": "Implement Redis Caching Layer for Employee Analytics API",
+    "assignee": "priya@proglint.com",
+    "priority": "Highest",
+    "status": "Done",
+    "estimated_hours": 8,
+    "created_date": "2026-11-16",
+    "due_date": "2026-11-20",
+    "agent_feasibility": "Delivered on Schedule - 33h focus time allowed uninterrupted implementation."
+  },
+  {
+    "id": "TASK-103",
+    "title": "Architecture Review: OAuth2 Service Principal Token Rotation",
+    "assignee": "amit@proglint.com",
+    "priority": "Medium",
+    "status": "Done",
+    "estimated_hours": 6,
+    "created_date": "2026-11-17",
+    "due_date": "2026-11-21",
+    "agent_feasibility": "Completed - Aligned with Tech Lead review schedule."
+  },
+  {
+    "id": "TASK-104",
+    "title": "Optimize SQL Connection Pool for Azure Database PostgreSQL",
+    "assignee": "priya@proglint.com",
+    "priority": "High",
+    "status": "In Progress",
+    "estimated_hours": 10,
+    "created_date": "2026-11-19",
+    "due_date": "2026-11-24",
+    "agent_feasibility": "On Track - Healthy deep-work bandwidth available."
+  }
+]

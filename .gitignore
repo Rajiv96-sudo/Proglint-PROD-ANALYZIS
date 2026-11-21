@@ -1,0 +1,22 @@
+# Sensitive credentials & secrets
+.env
+*.env
+.msal_token_cache.bin
+
+# Python virtual environment & cache
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+
+# Streamlit temporary files
+.streamlit/
+
+# OS specific files
+Thumbs.db
+Desktop.ini
+.DS_Store
+
